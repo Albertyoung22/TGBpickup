@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏫 學生接送智慧監控中心</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/static/app_icon.png" type="image/png">
+    <style>
+        :root {
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --bg: #f8fafc;
+            /* Cool White */
+            --card-bg: #ffffff;
+            --text: #0f172a;
+            /* Slate 900 */
+            --text-muted: #64748b;
+            /* Slate 500 */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --glass-bg: rgba(255, 255, 255, 0.8);
+            --border: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', 'Microsoft JhengHei', sans-serif;
+            background: var(--bg);
+            background-image: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        .layout {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            white-space: nowrap;
+            -ms-overflow-style: none;
+            /* Hide scrollbar IE/Edge */
+            scrollbar-width: none;
+            /* Hide scrollbar Firefox */
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-left {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .voice-selector-mini {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text);
+            /* Changed to var(--text) for better contrast */
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .voice-selector-mini:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .voice-selector-mini option {
+            background: var(--card-bg);
+            /* Changed to var(--card-bg) */
+            color: var(--text);
+            /* Changed to var(--text) */
+        }
+
+        /* Original header style, now applied to .header class */
+        /* header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            padding: 1.5rem 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            border-radius: 1.25rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        } */
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #0284c7;
+            letter-spacing: -0.025em;
+        }
+
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.3rem 0.8rem;
+            border-radius: 2rem;
+            background: #f0fdf4;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+            font-weight: 600;
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn:hover {
+            background: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(14, 165, 233, 0.3);
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: var(--text-muted);
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+
+        .btn-secondary:hover {
+            background: #f1f5f9;
+            color: var(--text);
+            transform: translateY(-1px);
+        }
+
+        .history-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+            position: relative;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+            border-color: var(--primary);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 1.75rem;
+            left: 0;
+            width: 6px;
+            height: 2.5rem;
+            border-radius: 0 4px 4px 0;
+            background: var(--text-muted);
+        }
+
+        .card.type-arrived::before {
+            background: var(--danger);
+        }
+
+        .card.type-soon::before {
+            background: var(--warning);
+        }
+
+        .card.type-thanks::before {
+            background: var(--success);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+        }
+
+        .parent-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .time {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .status-text {
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.5rem 1rem;
+            border-radius: 0.75rem;
+            display: inline-block;
+        }
+
+        .type-arrived .status-text {
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .type-soon .status-text {
+            background: #fffbeb;
+            color: var(--warning);
+        }
+
+        .type-thanks .status-text {
+            background: #f0fdf4;
+            color: var(--success);
+        }
+
+        /* Modal Settings */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            padding: 3rem;
+            border-radius: 2rem;
+            width: 90%;
+            max-width: 550px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: scale(0.95);
+            animation: scaleUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes scaleUp {
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 1.75rem;
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        select,
+        .form-control {
+            width: 100%;
+            background: #f8fafc;
+            border: 2px solid #f1f5f9;
+            color: var(--text);
+            padding: 1rem;
+            border-radius: 1rem;
+            outline: none;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        select:focus {
+            border-color: var(--primary);
+            background: #fff;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+            height: 8px;
+            border-radius: 4px;
+            accent-color: var(--primary);
+        }
+
+        .range-val {
+            text-align: right;
+            font-size: 1rem;
+            color: var(--primary);
+            font-weight: 700;
+            margin-top: 0.5rem;
+        }
+
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 6rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 2rem;
+            border: 3px dashed #e2e8f0;
+            font-size: 1.25rem;
+        }
+
+        .status-header {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #cbd5e1;
+            border-radius: 50%;
+        }
+
+        .online .status-dot {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            50% {
+                transform: scale(1.4);
+                opacity: 0.5;
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .action-container {
+            margin-top: 1.5rem;
+            padding-top: 1.25rem;
+            border-top: 1px dashed var(--border);
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-confirm {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            border-radius: 0.5rem;
+            background: #f0fdf4;
+            color: var(--success);
+            border: 1px solid #bbf7d0;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .btn-confirm:hover {
+            background: var(--success);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            padding: 1rem 2rem;
+            background: #1e293b;
+            color: white;
+            border-radius: 1rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transform: translateY(150%);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 2000;
+        }
+
+        .toast.visible {
+            transform: translateY(0);
+        }
+
+        /* Mobile Density Optimization */
+        @media (max-width: 640px) {
+            .layout {
+                padding: 0.5rem;
+            }
+
+            .header {
+                padding: 0.75rem 1rem;
+                gap: 0.5rem;
+                margin-bottom: 0.75rem;
+                border-radius: 0.75rem;
+            }
+
+            .header h1 {
+                font-size: 1.25rem;
+            }
+
+            ;
+
+            .header-right {
+                gap: 0.25rem;
+                flex-shrink: 0;
+            }
+
+            .voice-selector-mini {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.8rem;
+                border-radius: 0.5rem;
+            }
+
+            .btn {
+                padding: 0.5rem 0.8rem;
+                font-size: 0.8rem;
+                border-radius: 0.5rem;
+            }
+
+            .history-grid {
+                gap: 0.6rem;
+            }
+
+            .card {
+                padding: 0.85rem 1rem;
+                border-radius: 0.75rem;
+                border-width: 1px;
+            }
+
+            .card::before {
+                top: 0.75rem;
+                height: 1.75rem;
+                width: 4px;
+            }
+
+            .card-header {
+                margin-bottom: 0.5rem;
+            }
+
+            .parent-name {
+                font-size: 1.15rem;
+            }
+
+            .time {
+                font-size: 0.8rem;
+            }
+
+            .status-text {
+                font-size: 0.85rem;
+                padding: 0.25rem 0.65rem;
+                border-radius: 0.5rem;
+            }
+
+            .action-container {
+                margin-top: 0.5rem;
+                padding-top: 0.5rem;
+            }
+
+            .btn-confirm {
+                padding: 0.4rem;
+                font-size: 0.8rem;
+                width: 100%;
+                justify-content: center;
+            }
+
+            .empty-state {
+                padding: 3rem 1rem;
+                font-size: 1rem;
+            }
+
+            .toast {
+                left: 1rem;
+                right: 1rem;
+                bottom: 1.5rem;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="layout">
+        <div class="header">
+            <div class="header-left">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <img src="/static/logo.png" alt="Logo" style="width: 50px; height: 50px; border-radius: 12px;">
+                    <h1 style="font-size: 1.5rem;">真善美幼兒園 智慧監控中心</h1>
+                </div>
+                <div class="status-header">
+                    <div id="connection-status" class="status-dot"></div>
+                    <span id="status-text">正在連接伺服器...</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <select id="voice-select" class="voice-selector-mini" onchange="saveSettings()"></select>
+                <div class="last-update" style="color: var(--text-muted); font-size: 0.9rem;">最後更新：<span
+                        id="last-update" style="color: var(--primary);">{{ now }}</span></div>
+                <a href="history" class="btn btn-primary"
+                    style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem; background: var(--primary); border-color: var(--primary); padding: 0.6rem 1rem;">
+                    📜 接送日誌
+                </a>
+                <a href="/business_profile" class="btn btn-secondary"
+                    style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem; border: 1px solid var(--primary); color: var(--primary); padding: 0.6rem 1rem;">
+                    🏢 商業簡介
+                </a>
+                <button class="btn btn-secondary" onclick="openSettings()"
+                    style="display: flex; align-items: center; gap: 0.5rem;">
+                    ⚙️ 系統設定
+                </button>
+            </div>
+        </div>
+
+        <!-- 🏗️ Relay Control Panel -->
+        <div class="card"
+            style="margin-bottom: 1.5rem; border: 2px solid var(--primary); background: rgba(14, 165, 233, 0.05);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h3
+                    style="font-size: 1.25rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 0.5rem;">
+                    🎛️ 設備控制 (Relay Control)
+                </h3>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="web-serial-status" style="font-size: 0.8rem; color: var(--text-muted);">狀態：未連接</span>
+                    <button id="btn-serial-connect" class="btn btn-secondary"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.75rem;" onclick="connectWebSerial()">🔌
+                        硬體連線</button>
+                    <button id="btn-serial-disconnect" class="btn btn-secondary"
+                        style="display:none; padding: 0.3rem 0.6rem; font-size: 0.75rem; background:#fee2e2; color:#b91c1c;"
+                        onclick="disconnectWebSerial()">中斷</button>
+                    <button class="btn btn-secondary" onclick="allRelayOff()"
+                        style="padding: 0.3rem 0.6rem; font-size: 0.75rem; background: #fff1f2; color: #be123c; border-color: #fecdd3;">一鍵全關</button>
+                </div>
+            </div>
+            <div class="history-grid" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));">
+                <div id="relay-card-1" class="relay-card" onclick="toggleRelay(1)">
+                    <div class="relay-status-dot"></div>
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">📣</div>
+                    <div style="font-weight: 700;">1號 (廣播)</div>
+                    <div id="relay-status-1" style="font-size: 0.75rem; color: var(--text-muted);">狀態：<span
+                            style='color: #94a3b8;'>●</span> 關閉</div>
+                </div>
+                <div id="relay-card-2" class="relay-card" onclick="toggleRelay(2)">
+                    <div class="relay-status-dot"></div>
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">💡</div>
+                    <div style="font-weight: 700;">2號 (門燈)</div>
+                    <div id="relay-status-2" style="font-size: 0.75rem; color: var(--text-muted);">狀態：<span
+                            style='color: #94a3b8;'>●</span> 關閉</div>
+                </div>
+                <div id="relay-card-3" class="relay-card" onclick="toggleRelay(3)">
+                    <div class="relay-status-dot"></div>
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🌬️</div>
+                    <div style="font-weight: 700;">3號 (風扇)</div>
+                    <div id="relay-status-3" style="font-size: 0.75rem; color: var(--text-muted);">狀態：<span
+                            style='color: #94a3b8;'>●</span> 關閉</div>
+                </div>
+                <div id="relay-card-4" class="relay-card" onclick="toggleRelay(4)">
+                    <div class="relay-status-dot"></div>
+                    <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🚪</div>
+                    <div style="font-weight: 700;">4號 (電門)</div>
+                    <div id="relay-status-4" style="font-size: 0.75rem; color: var(--text-muted);">狀態：<span
+                            style='color: #94a3b8;'>●</span> 關閉</div>
+                </div>
+            </div>
+        </div>
+
+        <style>
+            .relay-card {
+                background: white;
+                padding: 1.25rem;
+                border-radius: 1rem;
+                border: 1px solid var(--border);
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .relay-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+                border-color: var(--primary);
+            }
+
+            .relay-card:active {
+                transform: scale(0.95);
+            }
+
+            .relay-status-dot {
+                position: absolute;
+                top: 0.75rem;
+                right: 0.75rem;
+                width: 8px;
+                height: 8px;
+                background: #e2e8f0;
+                border-radius: 50%;
+            }
+
+            .relay-card.active .relay-status-dot {
+                background: var(--success);
+                box-shadow: 0 0 8px var(--success);
+            }
+
+            /* 🔊 語音按鈕 - Responsive */
+            .play-gesture-btn {
+                position: fixed;
+                bottom: 30px;
+                right: 30px;
+                z-index: 10000;
+                padding: 16px 28px;
+                font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+                font-family: 'Outfit', 'Microsoft JhengHei', sans-serif;
+                background: linear-gradient(135deg, #0ea5e9, #10b981);
+                color: white;
+                border: none;
+                border-radius: 20px;
+                box-shadow: 0 10px 30px rgba(14, 165, 233, 0.4);
+                font-weight: 900;
+                cursor: pointer;
+                animation: bounceBtn 2s infinite;
+                transition: transform 0.2s, background 0.2s;
+            }
+
+            .play-gesture-btn:active {
+                transform: scale(0.95);
+            }
+
+            @keyframes bounceBtn {
+
+                0%,
+                100% {
+                    transform: translateY(0);
+                }
+
+                50% {
+                    transform: translateY(-8px);
+                }
+            }
+
+            @media (max-width: 640px) {
+                .play-gesture-btn {
+                    bottom: 20px;
+                    right: 20px;
+                    padding: 12px 20px;
+                    font-size: 0.85rem;
+                }
+            }
+        </style>
+
+
+        <div id="history-container" class="history-grid">
+            <div class="empty-state">⏳ 正在同步接送資料...</div>
+        </div>
+
+        <div id="toast" class="toast">✅ 已完成接送處理</div>
+
+        <!-- 音效資源 -->
+        <audio id="notification-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
+            preload="auto"></audio>
+
+        <!-- Settings Modal (省略部分不變) -->
+        <div id="settingsModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>系統偏好設定</h2>
+                    <button class="btn-secondary" onclick="closeSettings()"
+                        style="border:none; background:none; font-size: 1.5rem; cursor:pointer;">✕</button>
+                </div>
+
+                <!-- Voice select removed from here (now in header) -->
+
+                <div class="form-group">
+                    <label>播報語速</label>
+                    <input type="range" id="rate-range" min="-50" max="50" step="10" value="0">
+                    <div id="rate-val" class="range-val">+0%</div>
+                </div>
+
+                <div class="form-group">
+                    <label>播報音量</label>
+                    <input type="range" id="volume-range" min="-50" max="50" step="10" value="0">
+                    <div id="volume-val" class="range-val">+0%</div>
+                </div>
+
+                <div class="form-group">
+                    <label>學校校務處電話</label>
+                    <input type="text" id="school-phone-input" placeholder="例如: 02-1234-5678">
+                </div>
+
+                <div class="form-group"
+                    style="display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f8fafc; border-radius: 1rem;">
+                    <input type="checkbox" id="local-play-check" checked
+                        style="width: 1.5rem; height: 1.5rem; accent-color: var(--primary);">
+                    <label for="local-play-check" style="margin: 0; cursor:pointer;">啟用校園音響同步播放 (Local MPV)</label>
+                </div>
+
+                <div class="form-group">
+                    <label>語音選項管理</label>
+                    <div id="voice-options-editor" style="margin-bottom: 1rem;">
+                        <!-- Voice options will be rendered here -->
+                    </div>
+                    <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+                        <input type="text" id="new-voice-name" placeholder="語音名稱 (例如: 曉臻)" class="form-control"
+                            style="flex: 1;">
+                        <input type="text" id="new-voice-code" placeholder="語音代碼 (例如: zh-TW-HsiaoChenNeural)"
+                            class="form-control" style="flex: 1;">
+                    </div>
+                    <button class="btn btn-secondary" onclick="addVoiceOption()"
+                        style="width: 100%; padding: 0.75rem; border-radius: 0.75rem;">新增語音選項</button>
+                </div>
+
+                <div style="display: flex; gap: 1.25rem; margin-top: 3rem;">
+                    <button class="btn" style="flex: 2;" onclick="saveSettings()">儲存並套用</button>
+                    <button class="btn btn-secondary" style="flex: 1;" onclick="closeSettings()">取消</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            let currentHistory = [];
+            let firstLoad = true;
+            let lastHistoryHash = "";
+            let textQueue = [];
+            let isSpeaking = false;
+            let audioUnlocked = false;
+            let audioPlayer = document.createElement("audio");
+
+            function showGestureBtn() {
+                if (audioUnlocked || document.getElementById('play-gesture-btn')) return;
+                const btn = document.createElement('button');
+                btn.id = 'play-gesture-btn';
+                btn.className = 'play-gesture-btn';
+                btn.textContent = "🔊 點擊解鎖背景語音";
+                btn.onclick = () => {
+                    audioPlayer.src = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
+                    audioPlayer.play().catch(e => console.warn(e));
+                    audioUnlocked = true;
+                    btn.remove();
+                    speakNext();
+                };
+                document.body.appendChild(btn);
+            }
+
+            async function speakNext() {
+                if (isSpeaking || textQueue.length === 0 || !audioUnlocked) return;
+                isSpeaking = true;
+                const text = textQueue.shift();
+                try {
+                    const res = await fetch("/api/tts_preview", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ text: text })
+                    });
+                    if (!res.ok) throw new Error("TTS Request Failed");
+                    const blob = await res.blob();
+                    const url = URL.createObjectURL(blob);
+                    audioPlayer.src = url;
+                    audioPlayer.onended = () => {
+                        URL.revokeObjectURL(url);
+                        isSpeaking = false;
+                        setTimeout(speakNext, 100);
+                    };
+                    audioPlayer.onerror = () => {
+                        isSpeaking = false;
+                        setTimeout(speakNext, 100);
+                    };
+                    await audioPlayer.play();
+                } catch (err) {
+                    console.error("Speech error", err);
+                    isSpeaking = false;
+                    setTimeout(speakNext, 100);
+                }
+            }
+
+            async function pollData() {
+                try {
+                    const response = await fetch('/api/poll');
+                    if (!response.ok) throw new Error();
+                    const data = await response.json();
+
+                    const currentHash = JSON.stringify(data.history);
+                    if (currentHash !== lastHistoryHash) {
+                        // Diff and handle new items
+                        if (lastHistoryHash !== "") {
+                            const oldObj = JSON.parse(lastHistoryHash);
+                            const oldKeys = new Set(oldObj.map(x => x.name + x.time));
+                            const newItems = data.history.filter(x => !oldKeys.has(x.name + x.time)).reverse();
+
+                            for (let item of newItems) {
+                                if (item.speech_text) {
+                                    textQueue.push(item.speech_text);
+                                }
+                                // 🌟 Auto Trigger Relay 1 on "Arrived"
+                                if (item.class === "type-arrived") {
+                                    console.log("🚀 [自動聯動] 偵測到已到達，啟動 1 號繼電器 (擴大機)");
+                                    sendRelay(1, true);
+                                }
+                            }
+
+                            if (textQueue.length > 0) {
+                                if (!audioUnlocked) showGestureBtn();
+                                else speakNext();
+                            }
+                        }
+                        lastHistoryHash = currentHash;
+                        updateStatus(true);
+                        updateUI(data.history, data.now);
+                    }
+                } catch (err) {
+                    updateStatus(false);
+                    console.error('Polling error:', err);
+                }
+            }
+
+
+            function updateStatus(isOnline) {
+                const el = document.getElementById('connection-status');
+                const txt = document.getElementById('status-text');
+                if (isOnline) {
+                    el.classList.add('online');
+                    txt.innerText = "系統連線中 (Live)";
+                } else {
+                    el.classList.remove('online');
+                    txt.innerText = "連線中斷，正在重試...";
+                }
+            }
+
+            function updateUI(history, now) {
+                const container = document.getElementById('history-container');
+                document.getElementById('last-update').innerText = now;
+
+                if (!history || history.length === 0) {
+                    container.innerHTML = '<div class="empty-state">🍃 靜候接送訊息中...</div>';
+                    currentHistory = [];
+                    firstLoad = false;
+                    return;
+                }
+
+                // 檢查是否有新通知 (歷史紀錄變多或第一筆不同)
+                if (!firstLoad && history.length > currentHistory.length && history[0].time !== (currentHistory[0] ? currentHistory[0].time : '')) {
+                    playNotification();
+                }
+
+                if (JSON.stringify(history) === JSON.stringify(currentHistory)) return;
+                currentHistory = history;
+                firstLoad = false;
+
+                container.innerHTML = history.map(item => `
+                <div class="card ${item.class || ''}">
+                    <div class="card-header">
+                        <div style="display:flex; flex-direction:column; gap:4px;">
+                            <span class="parent-name">${item.name}</span>
+                            ${item.plate ? `<span style="font-size:0.9rem; color:var(--primary); font-weight:bold; font-family:monospace;">🚗 ${item.plate}</span>` : ''}
+                        </div>
+                        <span class="time">🕙 ${item.time}</span>
+                    </div>
+                    <div class="status-text">${item.status}</div>
+                    
+                    <div class="action-container">
+                        <button class="btn-confirm" onclick="clearParent('${item.name}')">
+                            <span>✅</span> 已完成接送
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+            }
+
+            let relayStates = { 1: false, 2: false, 3: false, 4: false };
+
+            function toggleRelay(ch) {
+                const newState = !relayStates[ch];
+                sendRelay(ch, newState);
+            }
+
+            async function allRelayOff() {
+                if (!confirm("確定要關閉所有設備？")) return;
+                for (let i = 1; i <= 4; i++) {
+                    await sendRelay(i, false);
+                }
+            }
+
+            async function clearParent(name) {
+                try {
+                    const res = await fetch('/api/clear_parent', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: name })
+                    });
+                    if (res.ok) {
+                        showToast();
+                        pollData(); // 立即重新整理
+                    }
+                } catch (err) { console.error('Clear parent error:', err); }
+            }
+
+            function playNotification() {
+                const sound = document.getElementById('notification-sound');
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log("Audio play blocked by browser."));
+            }
+
+            let _serialPort = null;
+            let _serialWriter = null;
+
+            async function connectWebSerial() {
+                if (!navigator.serial) {
+                    alert("瀏覽器不支援 Web Serial API，請使用 Chrome 或 Edge。");
+                    return;
+                }
+                try {
+                    _serialPort = await navigator.serial.requestPort();
+                    await _serialPort.open({ baudRate: 9600 });
+                    _serialWriter = _serialPort.writable.getWriter();
+                    document.getElementById('web-serial-status').textContent = "狀態：🟢 已連線";
+                    document.getElementById('btn-serial-connect').style.display = "none";
+                    document.getElementById('btn-serial-disconnect').style.display = "block";
+                } catch (e) {
+                    console.error("Serial connect error:", e);
+                    alert("連接失敗: " + e.message);
+                }
+            }
+
+            async function autoConnectSerial() {
+                if (!navigator.serial) return;
+                try {
+                    const ports = await navigator.serial.getPorts();
+                    if (ports.length > 0) {
+                        _serialPort = ports[0];
+                        await _serialPort.open({ baudRate: 9600 });
+                        _serialWriter = _serialPort.writable.getWriter();
+                        document.getElementById('web-serial-status').textContent = "狀態：🟢 已自動連線";
+                        document.getElementById('btn-serial-connect').style.display = "none";
+                        document.getElementById('btn-serial-disconnect').style.display = "block";
+                        console.log("🚀 [自動連線] 已成功連線至先前的設備");
+                    }
+                } catch (e) { console.warn("自動連線失敗:", e); }
+            }
+
+            async function disconnectWebSerial() {
+                try {
+                    if (_serialWriter) {
+                        _serialWriter.releaseLock();
+                        _serialWriter = null;
+                    }
+                    if (_serialPort) {
+                        await _serialPort.close();
+                        _serialPort = null;
+                    }
+                } catch (e) { console.warn(e); }
+                document.getElementById('web-serial-status').textContent = "狀態：未連接";
+                document.getElementById('btn-serial-connect').style.display = "block";
+                document.getElementById('btn-serial-disconnect').style.display = "none";
+            }
+
+            async function sendWebRelayCommand(ch, on) {
+                if (!_serialWriter) return false;
+                const bytes = new Uint8Array([0xA0, ch, on ? 1 : 0, (0xA0 + ch + (on ? 1 : 0)) & 0xFF]);
+                try {
+                    await _serialWriter.write(bytes);
+                    return true;
+                } catch (e) {
+                    console.error("Serial write error:", e);
+                    disconnectWebSerial();
+                    return false;
+                }
+            }
+
+            async function sendRelay(ch, on) {
+
+                // 1. Priority: Local Web Serial
+                if (_serialWriter) {
+                    const ok = await sendWebRelayCommand(ch, on);
+                    if (ok) {
+                        relayStates[ch] = on;
+                        updateRelayUI(ch, on);
+                        return;
+                    }
+                }
+
+                // 2. Fallback: Cloud API
+                try {
+                    const res = await fetch('/api/relay/send', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ ch: ch, on: on })
+                    });
+                    if (res.ok) {
+                        relayStates[ch] = on;
+                        updateRelayUI(ch, on);
+                    }
+                } catch (err) { console.error('Relay error:', err); }
+            }
+
+            function updateRelayUI(ch, on) {
+                const cards = document.querySelectorAll('.relay-card');
+                const target = cards[ch - 1];
+                const statusText = document.getElementById(`relay-status-${ch}`);
+                if (target) {
+                    if (on) {
+                        target.classList.add('active');
+                        if (statusText) statusText.innerHTML = "狀態：<span style='color: #10b981;'>●</span> 開啟";
+                    } else {
+                        target.classList.remove('active');
+                        if (statusText) statusText.innerHTML = "狀態：<span style='color: #94a3b8;'>●</span> 關閉";
+                    }
+                }
+            }
+
+
+
+            function showToast() {
+                const toast = document.getElementById('toast');
+                toast.classList.add('visible');
+                setTimeout(() => toast.classList.remove('visible'), 3000);
+            }
+
+            function openSettings() {
+                document.getElementById('settingsModal').classList.add('active');
+                loadSettingsFromAPI();
+            }
+
+            function closeSettings() {
+                document.getElementById('settingsModal').classList.remove('active');
+            }
+
+            let settingsData = null; // Store full settings locally for UI sync
+
+            async function loadSettingsFromAPI() {
+                let settings;
+                if (window.pywebview && window.pywebview.api) {
+                    settings = await window.pywebview.api.get_settings();
+                } else {
+                    try {
+                        const res = await fetch('/api/get_settings');
+                        if (!res.ok) throw new Error("API error");
+                        settings = await res.json();
+                    } catch (e) {
+                        console.error("Failed to load settings via Web API:", e);
+                        return;
+                    }
+                }
+
+                if (settings) {
+                    // FALLBACK: If voice_options is empty, provide system defaults
+                    if (!settings.voice_options || Object.keys(settings.voice_options).length === 0) {
+                        console.warn("⚠️ API returned empty voice_options. Using hardcoded defaults.");
+                        settings.voice_options = {
+                            "曉臻 (台灣腔)": "zh-TW-HsiaoChenNeural",
+                            "雲哲 (台灣腔男)": "zh-TW-YunJheNeural",
+                            "曉曉 (最溫柔)": "zh-CN-XiaoxiaoNeural",
+                            "雲希 (最親切)": "zh-CN-YunxiNeural"
+                        };
+                    }
+                    settingsData = settings;
+                    renderVoiceSettingsUI();
+                }
+            }
+
+            function renderVoiceSettingsUI() {
+                if (!settingsData) return;
+
+                const vSelect = document.getElementById('voice-select');
+                const currentVoice = settingsData.voice;
+
+                vSelect.innerHTML = Object.entries(settingsData.voice_options).map(([name, code]) =>
+                    `<option value="${code}" ${currentVoice === code ? 'selected' : ''}>${name}</option>`
+                ).join('');
+
+                const rate = parseInt(settingsData.rate.replace('%', ''));
+                const vol = parseInt(settingsData.volume.replace('%', ''));
+                document.getElementById('rate-range').value = rate;
+                document.getElementById('volume-range').value = vol;
+                document.getElementById('school-phone-input').value = settingsData.school_phone || "";
+                updateRangeLabels();
+
+                const localPlayCheck = document.getElementById('local-play-check');
+                if (localPlayCheck) {
+                    localPlayCheck.checked = settingsData.local_play || false;
+                    if (settingsData.local_play === undefined) {
+                        localPlayCheck.parentElement.style.display = 'none';
+                    }
+                }
+
+                // Render Voice Options Editor
+                renderVoiceOptionsEditor();
+            }
+
+            function renderVoiceOptionsEditor() {
+                const container = document.getElementById('voice-options-editor');
+                if (!container) return;
+                container.innerHTML = Object.entries(settingsData.voice_options).map(([name, code]) => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: #f1f5f9; padding: 0.5rem 1rem; border-radius: 0.5rem; margin-bottom: 0.5rem;">
+                        <div style="font-size: 0.9rem;">
+                            <strong style="color: var(--text);">${name}</strong>
+                            <span style="color: var(--text-muted); font-family: monospace; font-size: 0.8rem; margin-left: 0.5rem;">(${code})</span>
+                        </div>
+                        <button style="border: none; background: none; color: var(--danger); cursor: pointer; font-weight: bold;" onclick="deleteVoiceOption('${name}')">移除</button>
+                    </div>
+                `).join('');
+            }
+
+            function addVoiceOption() {
+                const nameInput = document.getElementById('new-voice-name');
+                const codeInput = document.getElementById('new-voice-code');
+                const name = nameInput.value.trim();
+                const code = codeInput.value.trim();
+
+                if (!name || !code) {
+                    alert("請輸入名稱與代碼");
+                    return;
+                }
+
+                settingsData.voice_options[name] = code;
+                nameInput.value = '';
+                codeInput.value = '';
+
+                renderVoiceSettingsUI();
+                renderVoiceOptionsEditor();
+            }
+
+            function deleteVoiceOption(name) {
+                if (Object.keys(settingsData.voice_options).length <= 1) {
+                    alert("至少需保留一個語音選項");
+                    return;
+                }
+                delete settingsData.voice_options[name];
+                renderVoiceSettingsUI();
+                renderVoiceOptionsEditor();
+            }
+
+            function updateRangeLabels() {
+                const r = document.getElementById('rate-range').value;
+                const v = document.getElementById('volume-range').value;
+                const rateVal = document.getElementById('rate-val');
+                const volumeVal = document.getElementById('volume-val');
+                if (rateVal) rateVal.innerText = (r >= 0 ? '+' : '') + r + '%';
+                if (volumeVal) volumeVal.innerText = (v >= 0 ? '+' : '') + v + '%';
+            }
+
+            async function saveSettings() {
+                const rate = document.getElementById('rate-range').value;
+                const vol = document.getElementById('volume-range').value;
+                const settings = {
+                    voice: document.getElementById('voice-select').value,
+                    rate: (rate >= 0 ? '+' : '') + rate + '%',
+                    volume: (vol >= 0 ? '+' : '') + vol + '%',
+                    local_play: document.getElementById('local-play-check') ? document.getElementById('local-play-check').checked : false,
+                    school_phone: document.getElementById('school-phone-input').value,
+                    voice_options: settingsData.voice_options // Include updated voice options
+                };
+
+                if (window.pywebview && window.pywebview.api) {
+                    await window.pywebview.api.update_settings(settings);
+                    closeSettings();
+                } else {
+                    try {
+                        const res = await fetch('/api/update_settings', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(settings)
+                        });
+                        if (res.ok) {
+                            closeSettings();
+                            showToast();
+                        } else {
+                            alert("儲存設定失敗");
+                        }
+                    } catch (e) {
+                        console.error("Save settings error:", e);
+                        alert("網路連線錯誤");
+                    }
+                }
+            }
+
+            document.getElementById('rate-range').oninput = updateRangeLabels;
+            document.getElementById('volume-range').oninput = updateRangeLabels;
+
+            async function pollRelayStatus() {
+                try {
+                    const res = await fetch('/api/relay/status');
+                    if (res.ok) {
+                        const states = await res.json();
+                        for (let ch in states) {
+                            const is_on = states[ch];
+                            if (relayStates[ch] !== is_on) {
+                                relayStates[ch] = is_on;
+                                updateRelayUI(ch, is_on);
+                            }
+                        }
+                    }
+                } catch (e) { console.error("Relay poll error:", e); }
+            }
+
+            // 🌟 核心橋樑：讓網頁去抓雲端指令並轉發給 USB 電路板
+            async function pollCloudCommands() {
+                if (!_serialWriter) return; // 沒連接硬體就不用抓
+                try {
+                    const res = await fetch('/api/relay/get');
+                    if (res.ok) {
+                        const cmds = await res.json();
+                        for (let c of cmds) {
+                            console.log("☁️ [收到雲端指令]", c);
+                            const ok = await sendWebRelayCommand(c.ch, c.on);
+                            if (ok) {
+                                relayStates[c.ch] = c.on;
+                                updateRelayUI(c.ch, c.on);
+                            }
+                        }
+                    }
+                } catch (e) { console.error("Cloud command fetch error:", e); }
+            }
+
+            setInterval(pollData, 3000);
+            setInterval(pollRelayStatus, 3000);
+            setInterval(pollCloudCommands, 2000); // 每 2 秒抓一次雲端指令
+            pollData();
+            pollRelayStatus();
+            loadSettingsFromAPI();
+            autoConnectSerial(); // 🚀 啟動自動連線
+        </script>
+
+</body>
+
+</html>

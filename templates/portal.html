@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏫 智慧接送服務入口 | 彩色版</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/static/app_icon.png" type="image/png">
+    <style>
+        :root {
+            --primary: #FF3B30; /* Bright Apple Red */
+            --bg: #F2F2F7;
+            --card-bg: #FFFFFF;
+            --text: #1D1D1F;
+            --text-secondary: #86868B;
+            --radius: 32px;
+            --transition: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Noto Sans TC', 'Outfit', sans-serif;
+            background-color: var(--bg);
+            background-image: 
+                radial-gradient(at 100% 0%, rgba(255, 149, 0, 0.15) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(0, 199, 190, 0.15) 0px, transparent 50%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .portal-wrapper { max-width: 1100px; width: 100%; }
+
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: bounceIn 0.8s var(--transition);
+        }
+
+        .header h1 {
+            font-size: 52px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FF9500, #FF2D55);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: 240px;
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            padding: 35px;
+            border-radius: var(--radius);
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.5s var(--transition);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+            border: 2px solid transparent;
+        }
+
+        .card:hover {
+            transform: translateY(-12px) scale(1.02);
+            box-shadow: 0 40px 80px rgba(0,0,0,0.1);
+        }
+
+        /* Lively Vibrant Colors */
+        .c-intro { grid-column: span 2; grid-row: span 2; background: linear-gradient(135deg, #FF2D55, #FF9500); color: white; }
+        .c-monitor { grid-column: span 2; background: #5856D6; color: white; } /* Purple */
+        .c-history { background: #34C759; color: white; } /* Green */
+        .c-billboard { grid-column: span 1; background: #007AFF; color: white; } /* Blue */
+        .c-setup { background: #AF52DE; color: white; } /* Purple-Indigo */
+
+        .card .icon { font-size: 56px; margin-bottom: 20px; text-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .card h2 { font-size: 28px; font-weight: 800; margin-bottom: 10px; }
+        .card p { font-size: 16px; opacity: 0.9; line-height: 1.5; }
+
+        .card .badge {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        @keyframes bounceIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            70% { transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        @media (max-width: 900px) {
+            .bento-grid { grid-template-columns: repeat(2, 1fr); }
+            .c-intro, .c-monitor { grid-column: span 2; }
+        }
+
+        @media (max-width: 600px) {
+            .bento-grid { grid-template-columns: 1fr; grid-auto-rows: auto; }
+            .c-intro, .c-monitor { grid-column: span 1; }
+            .header h1 { font-size: 36px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="portal-wrapper">
+        <header class="header">
+            <img src="/static/logo.png" alt="真善美幼兒園 Logo" style="width: 120px; height: 120px; margin-bottom: 20px; border-radius: 28px; box-shadow: 0 15px 35px rgba(255,149,0,0.2);">
+            <h1>真善美幼兒園 🌈 智慧接送</h1>
+            <p>讓放學變成一場充滿溫暖與關懷的冒險吧！</p>
+        </header>
+
+        <main class="bento-grid">
+            <a href="landing" class="card c-intro">
+                <div class="badge">必讀介紹</div>
+                <div>
+                    <div class="icon">🚀</div>
+                    <h2>產品旗艦功能</h2>
+                    <p>給孩子最繽紛的安全防護。探索 AI 擬真語音、LINE 自動化註冊與 GPS 安全校驗，每一刻都快人一步！</p>
+                </div>
+            </a>
+
+            <a href="dashboard" class="card c-monitor">
+                <div class="badge">快速開啟</div>
+                <div>
+                    <div class="icon">🎮</div>
+                    <h2>監控中心</h2>
+                    <p>管理老師專屬，一鍵確認接送進度，像玩遊戲一樣簡單！</p>
+                </div>
+            </a>
+
+            <a href="history" class="card c-history">
+                <div>
+                    <div class="icon">🎈</div>
+                    <h2>接送日誌</h2>
+                </div>
+            </a>
+
+            <a href="billboard" class="card c-billboard">
+                <div>
+                    <div class="icon">📺</div>
+                    <h2>門口大看板</h2>
+                </div>
+            </a>
+
+            <a href="manual" class="card c-setup">
+                <div>
+                    <div class="icon">📖</div>
+                    <h2>操作手冊</h2>
+                    <p>全圖解系統攻略</p>
+                </div>
+            </a>
+        </main>
+    </div>
+</body>
+</html>
