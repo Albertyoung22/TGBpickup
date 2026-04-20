@@ -1,0 +1,10 @@
+flask
+flask-cors
+line-bot-sdk
+python-dotenv
+edge-tts
+gTTS
+pyserial
+requests
+pywebview
+gunicorn
