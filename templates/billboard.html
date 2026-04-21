@@ -303,10 +303,7 @@
 
 <body>
     <header>
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <img src="/static/logo.png" alt="Logo" style="width: 60px; height: 60px; border-radius: 12px;">
-            <div class="title">真善美幼兒園 接送看板</div>
-        </div>
+        <div class="title">CAMPUS PICKUP LIVE</div>
         <div id="clock" class="clock">00:00:00</div>
     </header>
 
@@ -678,22 +675,22 @@
 
         // 🌟 核心橋樑：讓網頁去抓雲端指令並轉發給 USB 電路板
         async function pollCloudCommands() {
-            if (!_serialWriter) return; // 沒連接硬體就不用抓
-            try {
-                const res = await fetch('/api/relay/get');
-                if (res.ok) {
-                    const cmds = await res.json();
-                    for (let c of cmds) {
-                        console.log("☁️ [收到雲端指令]", c);
-                        const ok = await sendWebRelayCommand(c.ch, c.on);
-                        if (ok) {
-                            relayStates[c.ch] = c.on;
-                            provideVisualFeedback(c.ch, c.on);
+                if (!_serialWriter) return; // 沒連接硬體就不用抓
+                try {
+                    const res = await fetch('/api/relay/get');
+                    if (res.ok) {
+                        const cmds = await res.json();
+                        for (let c of cmds) {
+                            console.log("☁️ [收到雲端指令]", c);
+                            const ok = await sendWebRelayCommand(c.ch, c.on);
+                            if (ok) {
+                                relayStates[c.ch] = c.on;
+                                provideVisualFeedback(c.ch, c.on);
+                            }
                         }
                     }
-                }
-            } catch (e) { console.error("Cloud command fetch error:", e); }
-        }
+                } catch (e) { console.error("Cloud command fetch error:", e); }
+            }
 
         async function autoConnectSerial() {
             if (!navigator.serial) return;

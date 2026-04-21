@@ -41,9 +41,8 @@ if os.name == 'nt':
     except: pass
 
 # Config from Env Vars
-CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET', 'c6632893e52d8a94916a47fc1861ca7c')
+CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET', '69d95673cd759912774c74919ff496ea')
 CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', '')
-LINE_ADMIN_ID = os.getenv('LINE_ADMIN_ID', 'U811c266864d481a66d39d2000379d2e7')
 handler = WebhookHandler(CHANNEL_SECRET)
 
 # Audio directory
@@ -63,14 +62,9 @@ VOICE_OPTIONS = {
 current_voice = "zh-TW-HsiaoChenNeural"
 current_rate = "+0%"
 current_volume = "+0%"
-IS_RENDER = os.getenv("RENDER") is not None
-enable_local_play = not IS_RENDER  # Disable local playback on cloud
+enable_local_play = True  # Enable local MPV playback
 school_phone = "02-1234-5678" # Default School Phone Number
 VOICE_CONFIG_BLOB_URL = "https://jsonblob.com/api/jsonBlob/019d2b5b-7936-740c-862f-fe91e9739930" # Cloud settings blob
-
-# --- Cloud URL Configuration ---
-RENDER_URL = os.getenv("RENDER_EXTERNAL_URL")
-CLOUD_URL = os.getenv("CLOUD_URL", RENDER_URL or "https://schpickupdemo.onrender.com")
 
 # --- 4-Relay Configuration ---
 RELAY4_PORT = os.getenv("RELAY4_PORT", "COM5") 
@@ -101,7 +95,7 @@ PARENTS_DB = {}
 pickup_history = []
 activity_log = []
 LOG_BLOB_URL = "https://jsonblob.com/api/jsonBlob/019d2b5b-74fa-7e9a-9840-3b14b0890057"
-# CLOUD_URL is now defined above
+CLOUD_URL = os.getenv("CLOUD_URL", "https://tgbpickup.onrender.com")
 
 # --- Business Config ---
 BUSINESS_CONFIG_FILE = "business_config.json"
@@ -110,11 +104,11 @@ business_config = {}
 def load_business_config():
     global business_config
     default_config = {
-        "account_name": "真善美幼兒園接送系統",
-        "status_message": "歡迎來到真善美幼兒園！🌈",
+        "account_name": "接送系統Demo",
+        "status_message": "",
         "show_followers": False,
         "address": "尚未登錄",
-        "business_hours": "07:30 - 18:30",
+        "business_hours": "",
         "website": "",
         "phone": "",
         "bottom_buttons": ["加入好友"]
@@ -330,9 +324,6 @@ def speech_worker_thread():
         speech_queue.task_done()
 
 threading.Thread(target=speech_worker_thread, daemon=True).start()
-
-# Load voice config from cloud on startup (Import or Run)
-load_voice_config()
 
 # --- Weather & Location Helpers ---
 def _get_server_location():
@@ -889,11 +880,18 @@ def handle_postback(event):
 # --- Desktop UI Implementation ---
 def run_app():
     import os
+    # Detect if running on Render (Cloud Server)
+    is_render = os.environ.get("RENDER") is not None
     port = int(os.environ.get("PORT", 5000))
     
-    if IS_RENDER:
-        # On Render, the server is managed via Gunicorn externally calling 'app'
-        # This part is just a fallback if running 'python Pickup_System_Desktop.py' on Render
+    # Load voice config from cloud on startup
+    load_voice_config()
+    
+    if is_render:
+        logger.info("☁️ [環境檢測] 正在 Render 雲端環境執行。")
+        global enable_local_play
+        enable_local_play = False # Disable local play on cloud
+        # On Render, the server is managed web: gunicorn Pickup_System_Desktop:app --workers 1 --timeout 120e
         app.run(host='0.0.0.0', port=port, debug=False)
     else:
         # Local Desktop Mode

@@ -553,10 +553,7 @@
     <div class="layout">
         <div class="header">
             <div class="header-left">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <img src="/static/logo.png" alt="Logo" style="width: 50px; height: 50px; border-radius: 12px;">
-                    <h1 style="font-size: 1.5rem;">真善美幼兒園 智慧監控中心</h1>
-                </div>
+                <h1>🏫 智慧接送監控中心</h1>
                 <div class="status-header">
                     <div id="connection-status" class="status-dot"></div>
                     <span id="status-text">正在連接伺服器...</span>
@@ -1280,11 +1277,11 @@
             }
 
             setInterval(pollData, 3000);
-            setInterval(pollRelayStatus, 3000);
+            setInterval(pollRelayStatus, 3000); 
             setInterval(pollCloudCommands, 2000); // 每 2 秒抓一次雲端指令
             pollData();
-            pollRelayStatus();
-            loadSettingsFromAPI();
+            pollRelayStatus(); 
+            loadSettingsFromAPI(); 
             autoConnectSerial(); // 🚀 啟動自動連線
         </script>
 
