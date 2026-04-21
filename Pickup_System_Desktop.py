@@ -64,7 +64,7 @@ current_rate = "+0%"
 current_volume = "+0%"
 enable_local_play = True  # Enable local MPV playback
 school_phone = "02-1234-5678" # Default School Phone Number
-VOICE_CONFIG_BLOB_URL = "https://jsonblob.com/api/jsonBlob/019dadcd-5c31-7f3d-81d8-b9851f1323c5" # Cloud settings blob
+VOICE_CONFIG_BLOB_URL = os.getenv("VOICE_CONFIG_BLOB_URL", "https://jsonblob.com/api/jsonBlob/019dadcd-5c31-7f3d-81d8-b9851f1323c5") # Cloud settings blob
 
 # --- 4-Relay Configuration ---
 RELAY4_PORT = os.getenv("RELAY4_PORT", "COM5") 
@@ -94,7 +94,7 @@ PARENTS_FILE = "parents.json"
 PARENTS_DB = {}
 pickup_history = []
 activity_log = []
-LOG_BLOB_URL = "https://jsonblob.com/api/jsonBlob/019dadcd-597e-722e-be36-304af63ab26c"
+LOG_BLOB_URL = os.getenv("LOG_BLOB_URL", "https://jsonblob.com/api/jsonBlob/019dadcd-597e-722e-be36-304af63ab26c")
 CLOUD_URL = os.getenv("CLOUD_URL", "https://tgbpickup.onrender.com")
 
 # --- Business Config ---
@@ -162,7 +162,7 @@ def line_reply(reply_token, text):
 def load_parents_db():
     global PARENTS_DB
     # Free, 0-config JSON storage for permanence
-    blob_url = "https://jsonblob.com/api/jsonBlob/019dadcd-56a7-742f-8be5-53d32f3ad658"
+    blob_url = os.getenv("PARENTS_DB_BLOB_URL", "https://jsonblob.com/api/jsonBlob/019dadcd-56a7-742f-8be5-53d32f3ad658")
     import urllib.request, urllib.error
 
     req = urllib.request.Request(blob_url, headers={"Accept": "application/json"})
@@ -183,7 +183,7 @@ def load_parents_db():
     else: PARENTS_DB = {}
 
 def save_parents_db():
-    blob_url = "https://jsonblob.com/api/jsonBlob/019dadcd-56a7-742f-8be5-53d32f3ad658"
+    blob_url = os.getenv("PARENTS_DB_BLOB_URL", "https://jsonblob.com/api/jsonBlob/019dadcd-56a7-742f-8be5-53d32f3ad658")
     import urllib.request, urllib.error
     
     data = json.dumps(PARENTS_DB).encode('utf-8')
