@@ -31,7 +31,7 @@ logger = logging.getLogger("PickupMasterUnified")
 app = Flask(__name__, template_folder='templates', static_folder='static')
 CORS(app) # 允許網頁跨網域存取資料庫與音檔
 CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET', '69d95673cd759912774c74919ff496ea')
-CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', '')
+CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', '5gsbhxIJO9uwmM8mM6ybVgHWHbsfkckO/R55cq1ijV/DYxhV9/eKMVs/TOOf+thOulUs81o3JekECITXo06hgPPJymeQ/sEAi2n3wFoKC8Hp0cBTpW08207FbSZCAJsTxBDo95fmEeO6tXD4K+TmWgdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler(CHANNEL_SECRET)
 
 # --- Windows 任務欄圖示強制註冊 ---

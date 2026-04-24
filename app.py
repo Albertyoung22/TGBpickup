@@ -28,7 +28,7 @@ app = Flask(__name__)
 
 # --- Configuration ---
 CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET', '69d95673cd759912774c74919ff496ea')
-CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', '')
+CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', '5gsbhxIJO9uwmM8mM6ybVgHWHbsfkckO/R55cq1ijV/DYxhV9/eKMVs/TOOf+thOulUs81o3JekECITXo06hgPPJymeQ/sEAi2n3wFoKC8Hp0cBTpW08207FbSZCAJsTxBDo95fmEeO6tXD4K+TmWgdB04t89/1O/w1cDnyilFU=')
 
 handler = WebhookHandler(CHANNEL_SECRET)
 

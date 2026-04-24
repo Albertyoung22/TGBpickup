@@ -27,8 +27,13 @@ CORS(app) # Enable CORS for cross-domain access
 
 # Config from Env Vars
 CHANNEL_SECRET = os.getenv('LINE_CHANNEL_SECRET', '69d95673cd759912774c74919ff496ea')
-CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', '')
+CHANNEL_ACCESS_TOKEN = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', '5gsbhxIJO9uwmM8mM6ybVgHWHbsfkckO/R55cq1ijV/DYxhV9/eKMVs/TOOf+thOulUs81o3JekECITXo06hgPPJymeQ/sEAi2n3wFoKC8Hp0cBTpW08207FbSZCAJsTxBDo95fmEeO6tXD4K+TmWgdB04t89/1O/w1cDnyilFU=')
 handler = WebhookHandler(CHANNEL_SECRET)
+
+# Cloud Persistence (JsonBlob)
+BLOB_URL_PARENTS = "https://jsonblob.com/api/jsonBlob/019dbd12-8d24-7d5c-ae76-957ee12400ae"
+BLOB_URL_HISTORY = "https://jsonblob.com/api/jsonBlob/019dbd12-8ee2-7c9f-bedc-1184e7bb41e4"
+# BLOB_URL_VOICE = "https://jsonblob.com/api/jsonBlob/019dbd12-908f-7572-8960-63a820aef547"
 
 # Audio directory (absolute path)
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -45,6 +50,30 @@ speech_queue = queue.Queue()
 PARENTS_FILE = "parents.json"
 PARENTS_DB = {}
 pickup_history = []
+
+# --- Cloud Storage Helpers ---
+import urllib.request
+
+def fetch_json_blob(url):
+    try:
+        req = urllib.request.Request(url, headers={"Accept": "application/json"})
+        with urllib.request.urlopen(req) as r:
+            return json.loads(r.read().decode('utf-8'))
+    except Exception as e:
+        logger.error(f"Failed to fetch cloud data from {url}: {e}")
+        return None
+
+def update_json_blob(url, data):
+    try:
+        body = json.dumps(data, ensure_ascii=False, indent=4).encode('utf-8')
+        req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"}, method="PUT")
+        with urllib.request.urlopen(req) as r:
+            if r.status == 200:
+                logger.info(f"Successfully updated cloud data at {url}")
+                return True
+    except Exception as e:
+        logger.error(f"Failed to update cloud data at {url}: {e}")
+    return False
 
 HELP_TEXT = (
     "🛑 【重要通知：您尚未完成註冊】\n\n"
@@ -79,23 +108,53 @@ def line_reply(reply_token, text):
         logger.error(f"Failed to reply via LINE: {e}")
 def load_parents_db():
     global PARENTS_DB
+    # 1. Try local file first (for speed if available)
     if os.path.exists(PARENTS_FILE):
         try:
             with open(PARENTS_FILE, "r", encoding="utf-8") as f:
                 PARENTS_DB = json.load(f)
+                logger.info("Loaded parents from local cache.")
         except Exception as e:
             logger.error(f"Error loading {PARENTS_FILE}: {e}")
             PARENTS_DB = {}
-    else: PARENTS_DB = {}
+    
+    # 2. Always check Cloud (JsonBlob) for updates or if local is missing
+    cloud_data = fetch_json_blob(BLOB_URL_PARENTS)
+    if cloud_data is not None:
+        if isinstance(cloud_data, dict):
+            PARENTS_DB.update(cloud_data)
+            # Sync back to local
+            try:
+                with open(PARENTS_FILE, "w", encoding="utf-8") as f:
+                    json.dump(PARENTS_DB, f, ensure_ascii=False, indent=4)
+            except: pass
+            logger.info("Merged parents data from Cloud.")
+        else:
+            logger.warning("Cloud data is not a dictionary.")
 
 def save_parents_db():
+    # 1. Save locally
     try:
         with open(PARENTS_FILE, "w", encoding="utf-8") as f:
             json.dump(PARENTS_DB, f, ensure_ascii=False, indent=4)
     except Exception as e:
         logger.error(f"Error saving {PARENTS_FILE}: {e}")
+    
+    # 2. Sync to Cloud
+    update_json_blob(BLOB_URL_PARENTS, PARENTS_DB)
+
+def load_history():
+    global pickup_history
+    cloud_data = fetch_json_blob(BLOB_URL_HISTORY)
+    if isinstance(cloud_data, list):
+        pickup_history = cloud_data
+        logger.info("Loaded history from Cloud.")
+
+def save_history():
+    update_json_blob(BLOB_URL_HISTORY, pickup_history)
 
 load_parents_db()
+load_history()
 
 # --- Speech worker thread (Generates MP3 for clients) ---
 async def generate_speech(text, v, r, vol, audio_path):
@@ -288,6 +347,7 @@ def handle_message(event):
     # Store in history
     pickup_history.insert(0, entry)
     if len(pickup_history) > 30: pickup_history.pop()
+    save_history() # Sync history to cloud
     
     # Queue audio generation
     speech_queue.put((f"{parent_name} {s_text}", audio_full_path))
