@@ -515,6 +515,48 @@ def api_poll():
     now_str = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).strftime("%H:%M:%S")
     return jsonify({"history": pickup_history, "now": now_str}), 200
 
+# --- Admin API & Routes ---
+
+@app.route("/admin/parents", methods=['GET'])
+def admin_parents():
+    return render_template('admin_parents.html')
+
+@app.route("/api/parents", methods=['GET'])
+def api_get_parents():
+    # Return PARENTS_DB as a list (Desktop version supports dict/struct)
+    parents_list = []
+    for uid, data in PARENTS_DB.items():
+        name = data.get("name", str(data)) if isinstance(data, dict) else str(data)
+        parents_list.append({"user_id": uid, "name": name})
+    return jsonify(parents_list), 200
+
+@app.route("/api/parents", methods=['POST'])
+def api_update_parent():
+    data = request.json
+    uid = data.get("user_id")
+    name = data.get("name")
+    if not uid or not name:
+        return jsonify({"error": "Missing user_id or name"}), 400
+    
+    # Check if existing is dict
+    if uid in PARENTS_DB and isinstance(PARENTS_DB[uid], dict):
+        PARENTS_DB[uid]["name"] = name
+    else:
+        PARENTS_DB[uid] = {"name": name, "plate": ""}
+        
+    save_parents_db()
+    return jsonify({"success": True}), 200
+
+@app.route("/api/parents/<user_id>", methods=['DELETE'])
+def api_delete_parent(user_id):
+    if user_id in PARENTS_DB:
+        del PARENTS_DB[user_id]
+        save_parents_db()
+        return jsonify({"success": True}), 200
+    return jsonify({"error": "User not found"}), 404
+
+# --- Legacy & Compatibility Routes ---
+
 @app.route("/api/clear_parent", methods=['POST'])
 @app.route("/pickup/api/clear_parent", methods=['POST'])
 def clear_parent():
@@ -528,7 +570,6 @@ def clear_parent():
 @app.route("/api/history", methods=['GET'])
 @app.route("/pickup/api/history", methods=['GET'])
 def get_full_history():
-    # Return 1 week log
     return jsonify(activity_log), 200
 
 @app.route("/history", methods=['GET'])

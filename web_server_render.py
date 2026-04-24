@@ -259,7 +259,39 @@ def clear_parent():
     logger.info(f"Cleared parent from history: {target_name}")
     return "OK", 200
 
-# Endpoint to fetch the generated audio (MP3)
+# --- Admin API & Routes ---
+
+@app.route("/admin/parents", methods=['GET'])
+def admin_parents():
+    return render_template('admin_parents.html')
+
+@app.route("/api/parents", methods=['GET'])
+def api_get_parents():
+    # Return PARENTS_DB as a list for easier frontend handling
+    parents_list = [{"user_id": uid, "name": name} for uid, name in PARENTS_DB.items()]
+    return jsonify(parents_list), 200
+
+@app.route("/api/parents", methods=['POST'])
+def api_update_parent():
+    data = request.json
+    uid = data.get("user_id")
+    name = data.get("name")
+    if not uid or not name:
+        return jsonify({"error": "Missing user_id or name"}), 400
+    
+    PARENTS_DB[uid] = name
+    save_parents_db()
+    return jsonify({"success": True}), 200
+
+@app.route("/api/parents/<user_id>", methods=['DELETE'])
+def api_delete_parent(user_id):
+    if user_id in PARENTS_DB:
+        del PARENTS_DB[user_id]
+        save_parents_db()
+        return jsonify({"success": True}), 200
+    return jsonify({"error": "User not found"}), 404
+
+# --- Endpoint to fetch the generated audio (MP3) ---
 @app.route("/get_audio/<filename>", methods=['GET'])
 @app.route("/pickup/get_audio/<filename>", methods=['GET'])
 def get_audio(filename):
